@@ -13,7 +13,7 @@ module.exports=function(grunt){
 		uncss:{
 			dist:{
 				files:[
-				{src:'index.html',dest:'dist/myown.css'}
+				{ src:'index.html',dest:'dist/myown.css'}
 				]
 			}
 		},
@@ -53,8 +53,7 @@ module.exports=function(grunt){
 		csslint:{
 			src:['css/main.css']
 		},
-		imageoptim:
-		{
+		imageoptim:{
 			myTask:{
 				options:{
 					jpegMini:false,
@@ -69,7 +68,7 @@ module.exports=function(grunt){
 				files:[
 					{
 						src:'css/main.css',
-						dest:'dist/myown.css'
+						dest:'dist/main.css'
 					}
 				]
 			}
@@ -83,14 +82,30 @@ module.exports=function(grunt){
 				dest:"dist/main.css"
 			}
 		},
-		autoprefixer:{
-			multiply_files:{
-				expand:true,
-				flatten:true,
-				src:"css/*css",
-				dest:"dist/"
-			}
-		},
+		postcss: {
+    options: {
+      map: {
+          inline: false,
+      },
+
+      processors: [
+        require('autoprefixer')([
+          "Android 2.3",
+          "Android >= 4",
+          "Chrome >= 20",
+          "Firefox >= 3",
+          "Explorer 9",
+          "iOS >= 6",
+          "Opera >= 8",
+          "Safari >= 6"
+        ])
+        /*require('cssgrace'),*/
+      ]
+    },
+    dist: {
+      src: 'css/main.css'
+    }
+  },
 		uncss:{
 			dist:{
 				files:{
@@ -101,6 +116,28 @@ module.exports=function(grunt){
 		watch:{
 			files:['index.html','css/*.css','js/*.js'],
 			tasks:[]
+		},
+		browserSync:{
+			dev:{
+				bsFiles:{
+					src:[
+					'css/*.css',
+					'index.html']
+				},
+				options: {
+					watchTask: true,
+					server: './../doodle-project'
+				}
+			}
+		},
+		stylelint:{
+			simple:{
+				options: {
+					configFile: './.stylelintrc.json',
+					format: 'sass'
+				},
+				src:'sass/**/*.scss'
+			}
 		}
 	});   
 	grunt.loadNpmTasks('grunt-contrib-uglify');
@@ -108,11 +145,16 @@ module.exports=function(grunt){
 	grunt.loadNpmTasks('grunt-contrib-concat');
 	grunt.loadNpmTasks('grunt-concat-css');
 	grunt.loadNpmTasks('grunt-contrib-watch');
+	grunt.loadNpmTasks('grunt-browser-sync');
 	grunt.loadNpmTasks('grunt-imageoptim');
 	grunt.loadNpmTasks('grunt-contrib-cssmin');
 	grunt.loadNpmTasks('grunt-contrib-htmlmin');
 	grunt.loadNpmTasks('grunt-contrib-csslint');
-	grunt.loadNpmTasks('grunt-autoprefixer');
-	grunt.loadNpmTasks('grunt-uncss');
+	grunt.loadNpmTasks('grunt-postcss');
 	grunt.loadNpmTasks('grunt-html');
+	grunt.loadNpmTasks('grunt-tenon-client');
+	grunt.loadNpmTasks('grunt-stylelint');
+
+	grunt.registerTask('default', ['browserSync', 'watch']);
+	grunt.registerTask('ondev', ['postcss','cssmin','htmlmin','uglify']);
 };
